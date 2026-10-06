@@ -230,6 +230,41 @@ Object.assign(makers, {
     b.meta.colors = { ...b.meta.colors, bg: '#3d5fc4', g: '#1d2f6e' };
     return b;
   },
+  triggers: () => {
+    const b = new LevelBuilder({
+      name: 'Test: Triggers', author: 'tests', song: 'test-a', bpm: 128, length: 120, id: 'test-triggers', bg: 1,
+      colors: { bg: '#1a2a8c', g: '#101a5c', line: '#9fd8ff', '1': '#5cc8ff', '2': '#ff5fd2', '3': '#ffe14d', obj: '#ffffff' },
+    });
+    // color fades
+    b.add('trig_color', 6, 0, { t: 'bg', col: '#6a1a8c', d: 2.5 });
+    b.add('trig_color', 6, 1, { t: 'g', col: '#3a0d52', d: 2.5 });
+    b.add('trig_color', 6, 2, { t: 1, col: '#ff8a3d', d: 2.5 });
+    // a wall that sinks into the ground just before the player arrives
+    b.rect('block', 24, 0, 25, 2, { g: [1], glow: 1, c: 1 });
+    b.add('trig_move', 15, 0, { t: 1, dy: -3, d: 0.6, e: 'cio' });
+    // a platform that rises to carry the player over spikes
+    b.row('slab', 31, 37, 0, { g: [2], c: 2 });
+    b.row('spike', 31, 37, 0);
+    b.add('trig_move', 26, 0, { t: 2, dy: 1, d: 0.35, e: 'bo' });
+    b.add('trig_move', 37, 0, { t: 2, dy: 3, d: 1, e: 'qi' });
+    // hidden deco that toggles on, rotating gears, a fading ring group
+    b.add('trig_toggle', 0, 0, { t: 3, on: 0 });
+    for (const x of [42, 46, 50]) b.add('deco_star', x, 5, { g: [3], c: 3 });
+    b.add('trig_toggle', 40, 0, { t: 3, on: 1 });
+    b.add('deco_gear', 44, 3, { g: [4], c: 1 }).add('deco_gear', 54, 3, { g: [4], c: 2 });
+    b.add('trig_rotate', 40, 1, { t: 4, deg: 720, d: 4, e: 'sio' });
+    for (const x of [58, 61, 64]) b.add('deco_ring', x, 3, { g: [5], c: 1, s: 1.5 });
+    b.add('trig_alpha', 56, 0, { t: 5, op: 0, d: 1.5 });
+    // beat-pulsing deco + glow, pulses and a shake at the "drop"
+    for (const x of [66, 72, 78, 84]) b.add('deco_beatring', x, 4, { c: 2 }).add('deco_eq', x + 2, 0, { c: 1 });
+    for (const x of [68, 76]) b.add('deco_glow', x, 2, { c: 3 });
+    b.add('trig_pulse', 66, 0, { t: 'bg', col: '#ffffff', fi: 0.02, hold: 0.05, fo: 0.4 });
+    b.add('trig_shake', 66, 1, { amp: 0.4, d: 0.5 });
+    b.add('trig_color', 66, 2, { t: 'bg', col: '#0d6b5c', d: 0.1 });
+    b.add('trig_color', 66, 3, { t: 'g', col: '#06362e', d: 0.1 });
+    b.row('block', 70, 72, 0, { glow: 1 }).add('spike', 76, 0).add('spike', 77, 0).row('block', 82, 85, 0, { glow: 1 }).add('spike', 85, 1);
+    return b;
+  },
 });
 
 const only = process.argv.slice(2);
