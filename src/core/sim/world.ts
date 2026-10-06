@@ -72,7 +72,7 @@ export interface World {
   chunkCount: number;
   chunkStart: Uint32Array;
   chunkList: Uint32Array;
-  /** Visual chunks (CSR) — every object except triggers. */
+  /** Visual chunks (CSR) — every object (the game view skips triggers). */
   vchunkStart: Uint32Array;
   vchunkList: Uint32Array;
   triggers: TriggerDef[];
@@ -387,7 +387,8 @@ function buildChunks(w: World): void {
     return [counts, list];
   };
   [w.chunkStart, w.chunkList] = build((i) => w.kind[i] !== Kind.Deco && w.kind[i] !== Kind.Trigger);
-  [w.vchunkStart, w.vchunkList] = build((i) => w.kind[i] !== Kind.Trigger);
+  // visual chunks include triggers so the editor can show them (gameplay skips them)
+  [w.vchunkStart, w.vchunkList] = build(() => true);
 }
 
 /** Level time (seconds) at which the player reaches x, following speed portals. */

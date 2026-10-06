@@ -114,7 +114,7 @@ function hexOf(r: number, g: number, b: number): number {
 
 export class GameView {
   readonly root = new Container();
-  readonly world: World;
+  world: World;
   private readonly bank: TextureBank;
   opts: ViewOptions;
 
@@ -149,12 +149,12 @@ export class GameView {
   // sprite pools per layer, plus glow pool
   private readonly pools: Sprite[][] = [];
   private readonly glowPool: Sprite[] = [];
-  private readonly sprites: Array<ObjSprites | null>;
-  private readonly refs: Uint16Array;
+  private sprites: Array<ObjSprites | null>;
+  private refs: Uint16Array;
   private c0 = 0;
   private c1 = -1;
   private readonly allocated: number[] = [];
-  private readonly allocPos: Int32Array;
+  private allocPos: Int32Array;
 
   // channel colors as seen this frame
   private readonly chanHex = new Uint32Array(CHANNEL_COUNT);
@@ -411,6 +411,15 @@ export class GameView {
     }
     this.c0 = c0;
     this.c1 = c1;
+  }
+
+  /** Swap in a recompiled world (editor edits) keeping textures and pools. */
+  setWorld(world: World): void {
+    this.clearObjects();
+    this.world = world;
+    this.sprites = new Array(world.n).fill(null);
+    this.refs = new Uint16Array(world.n);
+    this.allocPos = new Int32Array(world.n).fill(-1);
   }
 
   /** Release everything (e.g. editor changed the level). */

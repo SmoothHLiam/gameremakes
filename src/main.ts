@@ -5,6 +5,10 @@ import { audio } from './app/audio.ts';
 import { store } from './app/settings.ts';
 import { LevelAudio } from './game/levelAudio.ts';
 import { GameScreen } from './ui/gameScreen.ts';
+import { EditorScreen } from './editor/editorScreen.ts';
+import { EditorModel } from './editor/model.ts';
+import { emptyLevel } from './core/level.ts';
+import type { CameraState } from './render/camera.ts';
 import { showLoading, showSplash } from './ui/splash.ts';
 import { findLevel, LEVELS } from './levels/index.ts';
 
@@ -28,6 +32,32 @@ async function boot(): Promise<void> {
   const loading = showLoading(app.ui, 'Composing music');
   await songJob;
   loading.done();
+  if (params.has('editor')) {
+    const model = new EditorModel(params.has('level') ? level : emptyLevel());
+    const openEditor = (cam?: CameraState) =>
+      app.setScreen(
+        new EditorScreen(app, {
+          model,
+          cam,
+          onExit: () => openEditor(),
+          onPlaytest: (lvl, startX, camState) => {
+            void audio.load(lvl.meta.song).then(() =>
+              app.setScreen(
+                new GameScreen(app, {
+                  level: lvl,
+                  startX: startX ?? undefined,
+                  playtest: true,
+                  audio: new LevelAudio(audio, lvl),
+                  onExit: () => openEditor(camState),
+                }),
+              ),
+            );
+          },
+        }),
+      );
+    openEditor();
+    return;
+  }
   const replay = params.has('replay') ? level.replay?.ticks : undefined;
   const start = () =>
     app.setScreen(

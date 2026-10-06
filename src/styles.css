@@ -54,7 +54,11 @@ html, body {
   pointer-events: none;
 }
 
-#ui > * { pointer-events: auto; }
+/* The UI layer never blocks the canvas except where something is interactive. */
+#ui * { pointer-events: none; }
+#ui button, #ui input, #ui select, #ui textarea, #ui label, #ui canvas, #ui a,
+#ui .overlay, #ui .splash, #ui .loading, #ui .interactive, #ui .interactive * { pointer-events: auto; }
+#ui .overlay *, #ui .splash * { pointer-events: auto; }
 
 /* ------------------------------------------------------------ shared UI */
 
@@ -125,8 +129,7 @@ html, body {
 
 /* ------------------------------------------------------------ HUD */
 
-.hud { position: absolute; inset: 0; pointer-events: none; }
-.hud > * { pointer-events: auto; }
+.hud { position: absolute; inset: 0; }
 .hud .progress {
   position: absolute; left: 50%; top: 14px; width: 520px; height: 22px; margin-left: -260px;
   border: 4px solid #120b2a; border-radius: 14px; background: rgba(255,255,255,0.18);
@@ -177,3 +180,78 @@ html, body {
 .loading-spinner { width: 70px; height: 70px; border: 9px solid #fff; border-radius: 16px; box-shadow: 0 0 0 5px #120b2a; animation: spin-cube 0.9s cubic-bezier(.5,0,.5,1) infinite; background: #3dff8b; }
 .loading-text { font-size: 34px; }
 @keyframes spin-cube { 0% { transform: rotate(0) translateY(0); } 50% { transform: rotate(45deg) translateY(-20px); } 100% { transform: rotate(90deg) translateY(0); } }
+
+/* ------------------------------------------------------------ editor */
+
+.editor { position: absolute; inset: 0; font-family: var(--body-font); }
+#ui .ed-top, #ui .ed-top *, #ui .ed-bottom, #ui .ed-bottom *, #ui .ed-props, #ui .ed-props * { pointer-events: auto; }
+.ed-top {
+  position: absolute; left: 0; right: 0; top: 0; height: 58px; display: flex; align-items: center; gap: 8px; padding: 0 10px;
+  background: linear-gradient(180deg, rgba(18,11,42,0.96), rgba(18,11,42,0.85)); border-bottom: 4px solid #120b2a;
+}
+.ed-top .btn.small { font-size: 18px; padding: 4px 12px 6px; }
+.ed-top .btn.icon { width: 44px; height: 44px; }
+.ed-top .btn.icon svg { width: 24px; height: 24px; }
+.ed-tool { display: inline-flex; align-items: center; gap: 6px; }
+.ed-tool svg { width: 20px; height: 20px; }
+.btn.active { background: linear-gradient(180deg, #ffe76b 0%, #ffb42e 100%); }
+.ed-sep { width: 2px; height: 34px; background: rgba(255,255,255,0.25); margin: 0 4px; }
+.ed-grow { flex: 1; }
+.ed-name {
+  font-family: var(--ui-font); font-size: 22px; color: #fff; background: none; border: 0; cursor: pointer; max-width: 260px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 0 #120b2a;
+}
+.ed-name:hover { color: var(--accent); }
+.ed-timeline { position: absolute; left: 0; bottom: 190px; width: 1280px; height: 46px; cursor: pointer; border-top: 3px solid #120b2a; }
+.ed-bottom {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 190px; display: flex; gap: 10px; padding: 8px 10px;
+  background: rgba(18,11,42,0.95); border-top: 4px solid #120b2a;
+}
+.ed-left { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ed-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.ed-tab {
+  font-family: var(--ui-font); font-size: 17px; color: #fff; background: #2b2058; border: 3px solid #120b2a; border-radius: 10px;
+  padding: 2px 10px 4px; cursor: pointer;
+}
+.ed-tab.active { background: #ffb42e; }
+.ed-palette { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; align-content: flex-start; max-height: 132px; padding-right: 4px; }
+.ed-obj {
+  width: 58px; height: 58px; padding: 0; border: 3px solid #120b2a; border-radius: 10px; background: #3a2c7a; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: transform 80ms;
+}
+.ed-obj img { width: 52px; height: 52px; pointer-events: none; }
+.ed-obj:hover { transform: scale(1.06); }
+.ed-obj.active { background: #6a55d6; box-shadow: 0 0 0 3px #ffe14d; }
+.ed-actions { width: 230px; display: grid; grid-template-columns: repeat(4, 50px); gap: 8px; align-content: center; justify-content: end; }
+.ed-actions .btn.icon { width: 50px; height: 50px; }
+.ed-actions .btn.icon svg { width: 26px; height: 26px; }
+.ed-dup { font-family: var(--ui-font); font-size: 20px; }
+.ed-props {
+  position: absolute; right: 8px; top: 66px; width: 280px; max-height: 400px; overflow-y: auto; display: none;
+  background: rgba(18,11,42,0.95); border: 4px solid #120b2a; border-radius: 16px; padding: 10px 12px; box-shadow: 0 0 0 3px rgba(255,255,255,0.7);
+}
+.ed-props.open { display: block; }
+.ed-props-title { font-size: 22px; margin-bottom: 8px; }
+.ed-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 5px 0; font-weight: 800; font-size: 15px; color: #e8e4ff; }
+.ed-row input[type=text], .ed-row input[type=number], .ed-row select {
+  width: 130px; font-family: var(--body-font); font-weight: 800; font-size: 15px; padding: 4px 6px; border-radius: 8px;
+  border: 3px solid #120b2a; background: #f4f2ff; color: #120b2a;
+}
+.ed-row input[type=color] { width: 60px; height: 30px; border: 3px solid #120b2a; border-radius: 8px; padding: 0; background: none; }
+.ed-row input[type=checkbox] { width: 22px; height: 22px; accent-color: #ffb42e; }
+.ed-hint { font-size: 13px; opacity: 0.75; margin-top: 8px; color: #fff; }
+.ed-toast {
+  position: absolute; left: 50%; top: 70px; transform: translateX(-50%); padding: 8px 18px; border-radius: 14px; background: #120b2a;
+  color: #fff; font-family: var(--ui-font); font-size: 20px; opacity: 0; pointer-events: none; border: 3px solid #fff;
+}
+.ed-toast.show { animation: toast 2.2s ease forwards; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, -10px); } 10%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+.ed-dialog { width: 1100px; max-height: 660px; overflow-y: auto; color: #fff; }
+.ed-dialog h2 { margin: 0 0 12px; font-size: 40px; font-weight: 400; }
+.ed-dialog-cols { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 26px; margin-bottom: 16px; }
+.ed-dialog .row { display: flex; gap: 14px; justify-content: center; }
+.ed-sub { font-family: var(--ui-font); font-size: 22px; margin-bottom: 6px; }
+.ed-colors { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-bottom: 10px; }
+.ed-color { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 15px; }
+.ed-color input { width: 54px; height: 28px; border: 3px solid #120b2a; border-radius: 8px; padding: 0; }
+.ed-row-btns { display: flex; gap: 8px; margin: 4px 0 8px; justify-content: flex-end; }

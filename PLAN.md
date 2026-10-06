@@ -171,7 +171,7 @@ Hitboxes:
 5. [x] Orbs, pads, slopes, dual, mini, mirror.
 6. [x] Color channels, triggers, glow, beat pulsing.
 7. [x] Practice mode with full-state checkpoints.
-8. [ ] Level editor.
+8. [x] Level editor.
 9. [ ] Original soundtrack and the 8 shipped levels with winning replays.
 10. [ ] Menus, icon customizer, settings, persistence, mobile polish.
 11. [ ] Performance pass, Playwright suite green, README.

@@ -26,6 +26,8 @@ export class InputManager {
         if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
         e.preventDefault();
         if (!e.repeat) this.down(`k:${e.code}`, e.timeStamp);
+        // screens may also want these as plain keys (the editor does)
+        this.key?.(e.code, e);
         return;
       }
       if (!e.repeat) this.key?.(e.code, e);
