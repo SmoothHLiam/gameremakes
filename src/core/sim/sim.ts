@@ -467,6 +467,13 @@ export class Simulation {
     let floorSlope = 0;
     let ceilRel = Infinity;
     let ceilU = 0;
+    // Slope candidates are tracked separately: while the player's center is over a
+    // slope, its surface wins over a higher flat block (no popping up at slope tops).
+    let sFloorRel = -Infinity;
+    let sFloorU = 0;
+    let sFloorDeg = 0;
+    let sCeilRel = Infinity;
+    let sCeilU = 0;
 
     this.gather(x - halfW - 4, x + halfW + 4);
     const n = this.candN;
@@ -517,20 +524,30 @@ export class Simulation {
         if (isFloor) {
           const pen = surfRel - bot;
           const reach = grounded ? Math.abs(slopeU) * DT + P.SLOPE_STICK + stick : 0;
-          if (pen <= tol + Math.abs(slopeU) * DT && (pen > 0 || pen > -reach) && (u <= Math.max(slopeU, 0) + 1 || grounded) && surfRel > floorRel) {
-            floorRel = surfRel;
-            floorU = slopeU;
+          if (pen <= tol + Math.abs(slopeU) * DT && (pen > 0 || pen > -reach) && (u <= Math.max(slopeU, 0) + 1 || grounded) && surfRel > sFloorRel) {
+            sFloorRel = surfRel;
+            sFloorU = slopeU;
             // visual tilt: clockwise degrees of the surface
-            floorSlope = (rising ? -1 : 1) * slopeAngleDeg(k);
+            sFloorDeg = (rising ? -1 : 1) * slopeAngleDeg(k);
           }
         } else if (hasCeiling) {
           const pen2 = top - surfRel;
-          if (pen2 > 0 && pen2 <= tol + Math.abs(slopeU) * DT && (u >= Math.min(slopeU, 0) - 1 || wasCeiling) && surfRel < ceilRel) {
-            ceilRel = surfRel;
-            ceilU = slopeU;
+          if (pen2 > 0 && pen2 <= tol + Math.abs(slopeU) * DT && (u >= Math.min(slopeU, 0) - 1 || wasCeiling) && surfRel < sCeilRel) {
+            sCeilRel = surfRel;
+            sCeilU = slopeU;
           }
         }
       }
+    }
+
+    if (sFloorRel > -Infinity && (floorRel === -Infinity || floorRel > sFloorRel + 0.5 || sFloorRel >= floorRel)) {
+      floorRel = sFloorRel;
+      floorU = sFloorU;
+      floorSlope = sFloorDeg;
+    }
+    if (sCeilRel < Infinity && (ceilRel === Infinity || ceilRel < sCeilRel - 0.5 || sCeilRel <= ceilRel)) {
+      ceilRel = sCeilRel;
+      ceilU = sCeilU;
     }
 
     // implicit planes: ground / play-area bounds (always solid, never deadly)

@@ -168,6 +168,68 @@ Object.assign(makers, {
     b.meta.colors = { ...b.meta.colors, bg: '#1f8f8a', g: '#0e4d4a' };
     return b;
   },
+  orbs: () => {
+    const b = new LevelBuilder({ name: 'Test: Orbs', author: 'tests', song: 'test-a', bpm: 128, length: 130, id: 'test-orbs' });
+    b.row('spike', 13, 18, 0).add('orb_jump', 15, 2);
+    b.add('orb_big', 25, 1).rect('block', 29, 0, 34, 3).row('spike', 24, 28, 0);
+    b.row('block', 40, 56, 7);
+    b.add('orb_gravity', 38, 2).row('spike', 37, 41, 0);
+    b.add('spike', 47, 6, { r: 180 });
+    b.add('orb_gravity', 53, 5);
+    b.row('spike', 52, 56, 0);
+    b.add('orb_dash', 64, 1).row('spike', 63, 71, 0);
+    b.add('orb_small', 80, 1).add('spike', 82, 0);
+    b.add('orb_flipjump', 92, 1).row('block', 92, 104, 6).row('spike', 91, 97, 0);
+    b.add('portal_gravn', 104, 4);
+    b.meta.colors = { ...b.meta.colors, bg: '#b8572a', g: '#6b2c10' };
+    return b;
+  },
+  pads: () => {
+    const b = new LevelBuilder({ name: 'Test: Pads', author: 'tests', song: 'test-a', bpm: 128, length: 110, id: 'test-pads' });
+    b.add('pad_jump', 12, 0).row('spike', 13, 17, 0);
+    b.add('pad_small', 24, 0).add('spike', 26, 0);
+    b.add('pad_big', 32, 0).rect('block', 37, 0, 42, 4).row('spike', 33, 36, 0);
+    b.add('pad_gravity', 50, 0).row('block', 48, 66, 6).row('spike', 51, 56, 0);
+    b.add('spike', 60, 5, { r: 180 });
+    b.add('portal_gravn', 66, 4);
+    b.add('spike', 76, 0);
+    b.meta.colors = { ...b.meta.colors, bg: '#a03b8f', g: '#5a1a50' };
+    return b;
+  },
+  slopes: () => {
+    const b = new LevelBuilder({ name: 'Test: Slopes', author: 'tests', song: 'test-a', bpm: 128, length: 120, id: 'test-slopes' });
+    b.add('slope45', 12, 0).row('block', 13, 18, 0).add('slope45', 19, 0, { fx: 1 });
+    b.add('slope26', 26, 0).row('block', 28, 30, 0);
+    b.add('slope26', 31, 1).rect('block', 31, 0, 32, 0).row('block', 33, 36, 1).rect('block', 33, 0, 36, 0);
+    b.add('slope26', 37, 1, { fx: 1 }).add('block', 37, 0).add('block', 38, 0).add('slope26', 39, 0, { fx: 1 });
+    b.add('slope45', 48, 0).add('slope45', 49, 1).add('block', 49, 0).row('spike', 51, 53, 0);
+    b.row('block', 62, 66, 0).add('slope45', 61, 0);
+    b.add('slope45', 67, 0, { fx: 1 });
+    b.meta.colors = { ...b.meta.colors, bg: '#3a8f5c', g: '#1d5434' };
+    return b;
+  },
+  dual: () => {
+    const b = new LevelBuilder({ name: 'Test: Dual', author: 'tests', song: 'test-a', bpm: 128, length: 110, id: 'test-dual' });
+    b.add('portal_dualon', 10, 0);
+    b.add('spike', 20, 0).add('spike', 28, 9, { r: 180 }).add('spike', 36, 0).add('spike', 36, 9, { r: 180 });
+    b.add('spike', 44, 0).add('spike', 45, 0).add('spike', 52, 9, { r: 180 });
+    b.add('portal_dualoff', 62, 0, { });
+    b.add('spike', 72, 0);
+    b.meta.colors = { ...b.meta.colors, bg: '#c4364f', g: '#6e1626' };
+    return b;
+  },
+  minimirror: () => {
+    const b = new LevelBuilder({ name: 'Test: Mini & Mirror', author: 'tests', song: 'test-a', bpm: 128, length: 110, id: 'test-minimirror' });
+    b.add('portal_sizem', 10, 0);
+    b.add('spike_half', 18, 0).add('spike_half', 24, 0).add('spike_half', 25, 0);
+    b.add('portal_mirron', 30, 0);
+    b.add('spike', 38, 0).row('block', 44, 47, 0).add('spike_half', 50, 0);
+    b.add('portal_mirroff', 56, 0);
+    b.add('portal_sizen', 62, 0);
+    b.add('spike', 70, 0);
+    b.meta.colors = { ...b.meta.colors, bg: '#3d5fc4', g: '#1d2f6e' };
+    return b;
+  },
 });
 
 const only = process.argv.slice(2);

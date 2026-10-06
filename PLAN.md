@@ -168,7 +168,7 @@ Hitboxes:
 2. [x] Fixed-timestep loop, cube physics, blocks, spikes, death and restart, physics tests.
 3. [x] Audio clock sync, progress bar, attempt counter, one test level.
 4. [x] All game modes and portals, with a test level per mode.
-5. [ ] Orbs, pads, slopes, dual, mini, mirror.
+5. [x] Orbs, pads, slopes, dual, mini, mirror.
 6. [ ] Color channels, triggers, glow, beat pulsing.
 7. [ ] Practice mode with full-state checkpoints.
 8. [ ] Level editor.
