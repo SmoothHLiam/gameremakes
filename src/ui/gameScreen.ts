@@ -115,7 +115,7 @@ export class GameScreen implements Screen {
     const p = this.session.percent;
     this.fill.style.width = `${p.toFixed(2)}%`;
     this.pct.textContent = `${Math.floor(p)}%`;
-    if (store.settings.showFps) this.fps.textContent = `${Math.round(this.app.fps)} FPS`;
+    if (store.settings.showFps) this.fps.textContent = `${Math.round(this.app.fps)} FPS · ${this.app.frameStats().avg.toFixed(1)} ms`;
   }
 
   onAction(down: boolean, ts: number): void {

@@ -15,6 +15,7 @@ import { findLevel } from './levels/index.ts';
 import { MenuScreen, type MenuPage, type PlayableLevel } from './ui/menu.ts';
 import { openSettings } from './ui/settings.ts';
 import { installRotateHint } from './ui/rotate.ts';
+import { prewarm } from './app/prewarm.ts';
 
 async function boot(): Promise<void> {
   document.title = GAME_TITLE;
@@ -32,13 +33,21 @@ async function boot(): Promise<void> {
   }
   installRotateHint(document.body);
 
-  // ?level=<id> jumps straight into a level (used by tests and links).
-  const direct = params.has('level') ? findLevel(params.get('level')!) : undefined;
+  // ?level=<id> jumps straight into a level (used by tests and links); ?stress=N builds a dense test level.
+  let direct = params.has('level') ? findLevel(params.get('level')!) : undefined;
+  if (params.has('stress')) {
+    const { stressLevel } = await import('./game/stressLevel.ts');
+    const level = stressLevel(Number(params.get('stress')) || 24000);
+    direct = { id: 'stress', path: '', level: { ...level, replay: { ticks: [] } }, test: true };
+    params.set('replay', '');
+  }
   const firstSong = direct?.level.meta.song ?? 'menu';
   // Start rendering the first song while the splash is up; the rest follow in the background.
   const songJob = audio.load(firstSong);
   void songJob.then(() => audio.load('menu')).then(() => audio.load('practice'));
-  await showSplash(app.ui);
+  const splash = showSplash(app.ui);
+  prewarm(app);
+  await splash;
   await audio.unlock();
   const applyVolumes = () => audio.setVolumes(store.settings.musicVolume, store.settings.sfxVolume);
   applyVolumes();

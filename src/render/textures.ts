@@ -34,6 +34,11 @@ export class TextureBank {
     this.build(allTextureSpecs());
   }
 
+  /** The atlas pages, so they can be uploaded to the GPU ahead of time. */
+  get pages(): readonly CanvasSource[] {
+    return this.sources;
+  }
+
   private build(specs: Record<string, TexSpec>): void {
     const B = this.ppb;
     const entries = Object.entries(specs).map(([key, spec]) => {

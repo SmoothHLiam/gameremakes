@@ -27,6 +27,9 @@ export class App {
   private screen: Screen | null = null;
   private last = 0;
   fps = 0;
+  /** CPU time (ms) of each recent frame's update + render submission, for the FPS readout and perf checks. */
+  private readonly cpu = new Float32Array(240);
+  private cpuN = 0;
   private fpsAcc = 0;
   private fpsFrames = 0;
   private running = false;
@@ -104,6 +107,14 @@ export class App {
     }
   }
 
+  /** Average and worst CPU frame time over the last few seconds (ms). */
+  frameStats(): { avg: number; p95: number; max: number; frames: number } {
+    const n = Math.min(this.cpuN, this.cpu.length);
+    if (!n) return { avg: 0, p95: 0, max: 0, frames: 0 };
+    const v = Array.from(this.cpu.subarray(0, n)).sort((a, b) => a - b);
+    return { avg: v.reduce((a, b) => a + b, 0) / n, p95: v[Math.floor(n * 0.95)]!, max: v[n - 1]!, frames: this.cpuN };
+  }
+
   get current(): Screen | null {
     return this.screen;
   }
@@ -127,6 +138,7 @@ export class App {
       this.screen?.frame(t, dt);
       for (const fn of this.afterFrame) fn(t, dt);
       this.pixi.renderer.render(this.pixi.stage);
+      this.cpu[this.cpuN++ % this.cpu.length] = performance.now() - t;
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);

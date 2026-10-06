@@ -178,6 +178,11 @@ Hitboxes:
 - **Leaving the editor** with unsaved changes asks to save, discard or cancel.
 - **Phones held upright** see a "turn your device sideways" screen; the game is
   16:9 landscape only so jump timing reads the same on every device.
+- **Performance target** is checked two ways: `tests/perf.test.ts` builds a
+  24k-object level and requires compile < 1.5 s and > 20x real-time
+  simulation, and `?stress=N` auto-plays such a level in the browser with
+  per-frame CPU time shown next to the FPS counter. Textures and shaders are
+  prewarmed behind the click-to-start splash.
 - **Soundtrack** is composed in code (`src/core/audio/songs.ts`) and rendered
   by the in-house synth in a Web Worker when needed (no audio files shipped).
 
@@ -206,4 +211,4 @@ Hitboxes:
 8. [x] Level editor.
 9. [x] Original soundtrack and the 8 shipped levels with winning replays.
 10. [x] Menus, icon customizer, settings, persistence, mobile polish.
-11. [ ] Performance pass, Playwright suite green, README.
+11. [x] Performance pass, Playwright suite green, README.
