@@ -21,6 +21,11 @@ async function boot(): Promise<void> {
   (window as unknown as { __app: App; __audio: typeof audio }).__app = app;
   (window as unknown as { __audio: typeof audio }).__audio = audio;
   const params = new URLSearchParams(location.search);
+  if (params.has('gallery')) {
+    const { showGallery } = await import('./ui/gallery.ts');
+    showGallery(app.ui);
+    return;
+  }
   // Start rendering the first song while the splash is up.
   const level = (findLevel(params.get('level') ?? 'test-cube') ?? LEVELS[0]!).level;
   const songJob = audio.load(level.meta.song);

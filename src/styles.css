@@ -255,3 +255,5 @@ html, body {
 .ed-color { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 15px; }
 .ed-color input { width: 54px; height: 28px; border: 3px solid #120b2a; border-radius: 8px; padding: 0; }
 .ed-row-btns { display: flex; gap: 8px; margin: 4px 0 8px; justify-content: flex-end; }
+.gallery { position: absolute; inset: 0; background: #2a1f6e; overflow: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.gallery-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }

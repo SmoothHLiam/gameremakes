@@ -158,9 +158,33 @@ Hitboxes:
   is too small for audio); level JSON itself stays in localStorage.
 - **Auto checkpoints** (practice) are taken every 2 s but only committed if the
   player survives the next 0.5 s, so they don't land in unavoidable deaths.
-- **Shipped levels** are produced by builder scripts that place obstacles
-  around an intended input timeline, then verified in the real sim; the
-  verified timeline is stored as the level's winning replay.
+- **Shipped levels** are produced by a music-driven composer
+  (`scripts/lib/composer.ts`, `scripts/levels/levels.ts`): inputs are chosen on
+  the song's beat grid, structure (portals, platforms, pads, orbs) is placed,
+  the real sim gives the exact trajectory, and hazards are then built around
+  that path with a difficulty-dependent margin. Every segment is re-verified
+  and the verified inputs are stored as the level's winning replay (plus a
+  coin replay that collects all three coins). `npm run levels` rebuilds them;
+  `tests/levels.test.ts` and `tests/shipped.test.ts` replay all of them and
+  check that every press sits on the beat grid.
+- **Coins** are reached by a secret orb detour in a calm stretch; the detour
+  must land back on the same floor before the next main input, so the rest of
+  the run is unchanged. Coins only count when the level is completed.
+- **Soundtrack** is composed in code (`src/core/audio/songs.ts`) and rendered
+  by the in-house synth in a Web Worker when needed (no audio files shipped).
+
+## Shipped levels
+
+| # | Level | Tier | Song BPM | Modes |
+| --- | --- | --- | --- | --- |
+| 1 | Neon Footsteps | Easy | 128 | cube, ship |
+| 2 | Pocket Orbit | Normal | 132 | cube, ship, ball, pads, orbs |
+| 3 | Static Bloom | Normal | 136 | cube, UFO, ship, ball |
+| 4 | Kite Circuit | Hard | 140 | cube, wave, robot, ball, ship (2×) |
+| 5 | Glass Cascade | Hard | 146 | robot, ship, dual cube, wave, UFO, ball, mirror |
+| 6 | Velvet Overdrive | Harder | 152 | spider, swing, wave, UFO, robot, mini wave (3×) |
+| 7 | Thunder Ladder | Insane | 160 | ball, wave, dual cube, swing, ship, spider, UFO (3×) |
+| 8 | Prism Breaker | Extreme | 174 | everything, 4× mini wave, dual, spider |
 
 ## Milestones
 
@@ -172,6 +196,6 @@ Hitboxes:
 6. [x] Color channels, triggers, glow, beat pulsing.
 7. [x] Practice mode with full-state checkpoints.
 8. [x] Level editor.
-9. [ ] Original soundtrack and the 8 shipped levels with winning replays.
+9. [x] Original soundtrack and the 8 shipped levels with winning replays.
 10. [ ] Menus, icon customizer, settings, persistence, mobile polish.
 11. [ ] Performance pass, Playwright suite green, README.
