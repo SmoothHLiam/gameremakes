@@ -121,15 +121,7 @@ export function solve(world: World, opts: SolveOptions = {}): SolveResult {
       return { ok: true, ticks: toTicks(done.node), endTick: done.state.tick, furthestX, coins: done.state.coins };
     }
     let list = [...next.values()];
-    if (list.length > beamSize) {
-      list.sort((a, b) => b.score - a.score);
-      // keep diversity: always keep the best few, then sample the rest evenly
-      const keep = list.slice(0, Math.floor(beamSize / 2));
-      const rest = list.slice(Math.floor(beamSize / 2));
-      const stride = rest.length / (beamSize - keep.length);
-      for (let i = 0; i < beamSize - keep.length; i++) keep.push(rest[Math.floor(i * stride)]!);
-      list = keep;
-    }
+    if (list.length > beamSize) list = prune(list, beamSize);
     beam = list;
     if (beam.length && beam[0]!.state.tick > maxTicks) break;
     if (opts.progress && beam.length) {
@@ -141,6 +133,38 @@ export function solve(world: World, opts: SolveOptions = {}): SolveResult {
     }
   }
   return { ok: false, ticks: [], endTick: -1, furthestX, coins: 0 };
+}
+
+/** Coarse bucket: keeps the beam spread over the vertical space instead of collapsing onto one route. */
+function bucketOf(s: SimState): string {
+  let k = `${s.speed}|${s.dual ? 1 : 0}|${s.coins}`;
+  for (const p of s.players) k += `|${p.mode}${p.g}${p.mini ? 1 : 0}${p.onGround ? 1 : 0}:${Math.round(p.y / 6)}:${Math.round(p.vy / 50)}`;
+  return k;
+}
+
+function prune(list: BeamEntry[], beamSize: number): BeamEntry[] {
+  const buckets = new Map<string, BeamEntry>();
+  for (const e of list) {
+    const k = bucketOf(e.state);
+    const b = buckets.get(k);
+    if (!b || e.score > b.score) buckets.set(k, e);
+  }
+  let out = [...buckets.values()];
+  if (out.length <= beamSize) {
+    // room left: refill with the best remaining entries
+    const chosen = new Set(out);
+    const rest = list.filter((e) => !chosen.has(e)).sort((a, b) => b.score - a.score);
+    out.push(...rest.slice(0, beamSize - out.length));
+    return out;
+  }
+  // too many buckets: always keep the best scores, then sample evenly by height
+  out.sort((a, b) => b.score - a.score);
+  const keep = out.slice(0, Math.floor(beamSize / 4));
+  const rest = out.slice(keep.length).sort((a, b) => a.state.players[0]!.y - b.state.players[0]!.y);
+  const need = beamSize - keep.length;
+  const stride = rest.length / need;
+  for (let i = 0; i < need; i++) keep.push(rest[Math.floor(i * stride)]!);
+  return keep;
 }
 
 function popcount(n: number): number {

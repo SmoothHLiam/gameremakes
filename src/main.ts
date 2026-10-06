@@ -3,11 +3,10 @@ import { GAME_TITLE } from './config.ts';
 import { App } from './app/app.ts';
 import { audio } from './app/audio.ts';
 import { store } from './app/settings.ts';
-import { parseLevel } from './core/level.ts';
 import { LevelAudio } from './game/levelAudio.ts';
 import { GameScreen } from './ui/gameScreen.ts';
 import { showLoading, showSplash } from './ui/splash.ts';
-import testCube from './levels/test/cube.json';
+import { findLevel, LEVELS } from './levels/index.ts';
 
 async function boot(): Promise<void> {
   document.title = GAME_TITLE;
@@ -17,7 +16,7 @@ async function boot(): Promise<void> {
   (window as unknown as { __app: App }).__app = app;
   const params = new URLSearchParams(location.search);
   // Start rendering the first song while the splash is up.
-  const level = parseLevel(testCube);
+  const level = (findLevel(params.get('level') ?? 'test-cube') ?? LEVELS[0]!).level;
   const songJob = audio.load(level.meta.song);
   await showSplash(app.ui);
   await audio.unlock();

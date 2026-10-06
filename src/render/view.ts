@@ -674,13 +674,14 @@ export class GameView {
       this.ceilShade.width = width;
       this.ceilShade.height = Math.max(1, top - this.ceilY);
       this.ceilShade.tint = 0x000000;
-      this.ceilShade.alpha = 0.18;
       this.ceilLine.position.set(camX + viewW / 2 - lineW / 2, -this.ceilY - 1.2);
       this.ceilLine.width = lineW;
       this.ceilLine.height = 2.4;
       this.ceilLine.tint = lineHex;
+      const k = Math.min(1, this.ceilOn * 1.2);
       this.ceilLine.alpha = 0.95 * this.ceilOn;
-      this.ceil.alpha = this.ceilShade.alpha = Math.min(1, this.ceilOn * 1.2);
+      this.ceil.alpha = k;
+      this.ceilShade.alpha = 0.18 * k;
     }
   }
 
