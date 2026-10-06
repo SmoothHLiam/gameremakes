@@ -103,6 +103,8 @@ warmed up behind the start screen, so a level's first frame doesn't hitch.
 
 ## Deploying to Vercel
 
+Live build: **https://gameremakes.vercel.app** (Vercel project `gameremakes`).
+
 The repo deploys as a static site. `vercel.json` sets the build command
 (`npm run build`), the output directory (`dist`), a fallback that sends every
 route to `index.html`, and long-lived immutable cache headers for the hashed
@@ -118,5 +120,10 @@ To make every push to `main` deploy automatically:
    install commands come from `vercel.json`) and click **Deploy**.
 4. That's it: from now on each push to `main` triggers a production
    deployment, and pushes to other branches get preview URLs.
+
+If the `gameremakes` project already exists in your Vercel account (it was
+created by a one-off deployment), don't import the repo a second time.
+Open the project's **Settings → Git**, choose **Connect Git Repository** and
+pick this repository instead; auto-deploys from `main` start with the next push.
 
 From a terminal, `npx vercel --prod` deploys the current checkout as well.
