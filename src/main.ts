@@ -1,27 +1,28 @@
 import './styles.css';
-import { Application } from 'pixi.js';
 import { GAME_TITLE } from './config.ts';
-import { Letterbox } from './render/stage.ts';
+import { App } from './app/app.ts';
+import { parseLevel } from './core/level.ts';
+import { GameScreen } from './ui/gameScreen.ts';
+import testCube from './levels/test/cube.json';
 
 async function boot(): Promise<void> {
   document.title = GAME_TITLE;
-  const stageEl = document.getElementById('stage')!;
-  const uiEl = document.getElementById('ui')!;
-  const canvas = document.getElementById('game') as HTMLCanvasElement;
-  const letterbox = new Letterbox(stageEl, uiEl);
-
-  const app = new Application();
-  await app.init({
-    canvas,
-    width: letterbox.rect.width,
-    height: letterbox.rect.height,
-    background: 0x000000,
-    resolution: Math.min(window.devicePixelRatio || 1, 2),
-    autoDensity: true,
-    antialias: true,
-    preference: ['webgl', 'canvas'],
-  });
-  letterbox.onChange((r) => app.renderer.resize(r.width, r.height));
+  const app = new App();
+  await app.init();
+  const params = new URLSearchParams(location.search);
+  const level = parseLevel(testCube);
+  const replay = params.has('replay') ? level.replay?.ticks : undefined;
+  const start = () =>
+    app.setScreen(
+      new GameScreen(app, {
+        level,
+        replay,
+        onExit: () => start(),
+      }),
+    );
+  start();
+  app.start();
+  (window as unknown as { __app: App }).__app = app;
 }
 
 void boot();
