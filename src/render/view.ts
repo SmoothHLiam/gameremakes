@@ -138,6 +138,8 @@ export class GameView {
   private readonly ceilShade: Sprite;
   private readonly ceilLine: Sprite;
   private readonly attemptText: Text;
+  private readonly cpLayer = new Container();
+  private readonly cpSprites: Sprite[] = [];
   private attemptX = 0;
   private readonly blur: BlurFilter | null;
 
@@ -222,6 +224,7 @@ export class GameView {
     for (const t of [this.floor, this.ceil]) t.tileScale.set((4 * BLOCK) / 256);
     this.groundLayer.addChild(this.floor, this.floorShade, this.floorLine, this.ceil, this.ceilShade, this.ceilLine);
     this.worldLayer.addChild(this.groundLayer);
+    this.worldLayer.addChild(this.cpLayer);
     this.worldLayer.addChild(this.debug);
     this.worldLayer.addChild(this.overlay);
 
@@ -266,6 +269,23 @@ export class GameView {
         this.glowLayer.addChild(g);
       }
     }
+  }
+
+  /** Practice checkpoint markers (world positions). */
+  setCheckpoints(list: Array<{ x: number; y: number }>): void {
+    const tex = this.bank.get('checkpoint');
+    while (this.cpSprites.length < list.length) {
+      const s = new Sprite(tex.tex);
+      s.anchor.set(0.5);
+      s.scale.set((BLOCK / tex.ppb) * 0.8);
+      this.cpLayer.addChild(s);
+      this.cpSprites.push(s);
+    }
+    this.cpSprites.forEach((s, i) => {
+      const c = list[i];
+      s.visible = !!c;
+      if (c) s.position.set(c.x, -c.y);
+    });
   }
 
   setAttempt(n: number, x: number): void {

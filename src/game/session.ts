@@ -5,6 +5,7 @@ import { Simulation, type SimEvent } from '../core/sim/sim.ts';
 import { cloneState, type SimState } from '../core/sim/state.ts';
 import { InputQueue, InputTimeline } from '../core/sim/replay.ts';
 import { fastForwardTriggers } from '../core/sim/triggers.ts';
+import { AutoCheckpoints } from '../core/sim/practice.ts';
 import { BLOCK, TICK_RATE } from '../core/physics.ts';
 import { Kind, MODE_KEYS, OrbType, PortalType } from '../core/objects.ts';
 import { GameCamera } from '../render/camera.ts';
@@ -91,6 +92,7 @@ export class GameSession {
   attempts = 0;
   practice: boolean;
   checkpoints: SimState[] = [];
+  private readonly autoCp = new AutoCheckpoints();
   private deathAt = 0;
   private pausedAt = 0;
   private pausedFrom: Phase = 'playing';
@@ -190,6 +192,8 @@ export class GameSession {
     this.attempts++;
     const from = this.practice && this.checkpoints.length ? this.checkpoints[this.checkpoints.length - 1]! : this.startState;
     this.sim.reset(from);
+    this.autoCp.reset(from.tick);
+    this.syncCheckpointMarkers();
     this.queue.reset(this.replay ? false : this.physicalHeld, from.tick);
     this.replay?.seek(from.tick);
     this.hasPrev = false;
@@ -261,17 +265,30 @@ export class GameSession {
     this.newAttempt(now);
   }
 
+  /** Practice: restart from the last checkpoint right away (no death delay). */
+  get checkpointCount(): number {
+    return this.checkpoints.length;
+  }
+
   placeCheckpoint(): void {
     if (!this.practice || this.phase !== 'playing') return;
     const s = this.sim.state;
     if (s.players.some((p) => p.dead)) return;
     this.checkpoints.push(cloneState(s));
+    // manual placement restarts the auto timer
+    this.autoCp.reset(s.tick);
+    this.syncCheckpointMarkers();
     this.audio.sfx('checkpoint');
   }
 
   removeCheckpoint(): void {
     if (!this.practice) return;
     this.checkpoints.pop();
+    this.syncCheckpointMarkers();
+  }
+
+  private syncCheckpointMarkers(): void {
+    this.view.setCheckpoints(this.practice ? this.checkpoints.map((c) => ({ x: c.x, y: c.players[0]!.y })) : []);
   }
 
   // ------------------------------------------------------------ frame
@@ -291,6 +308,13 @@ export class GameSession {
         const input = this.replay ? this.replay.at(tick) : this.queue.at(tick);
         this.sim.step(input);
         this.handleEvents(now);
+        if (this.practice && this.phase === 'playing') {
+          const cp = this.autoCp.onTick(this.sim.state);
+          if (cp) {
+            this.checkpoints.push(cp);
+            this.syncCheckpointMarkers();
+          }
+        }
         steps++;
       }
       if (steps >= MAX_CATCHUP_TICKS && !this.sim.done) {
@@ -379,7 +403,9 @@ export class GameSession {
         P.emit({ tex: 'p_ring', x, y, count: 1, speed: [0, 0], life: [0.45, 0.45], size: [0.5, 0.5], endSize: 5, alpha: 1, endAlpha: 0, tint: p1, add: true });
         P.emit({ tex: 'p_glow', x, y, count: 1, speed: [0, 0], life: [0.25, 0.25], size: [3, 3], endSize: 0.2, alpha: 1, endAlpha: 0, tint: 0xffffff, add: true });
         this.camera.shake(5, 0.35);
-        this.audio.stopMusic(0.05);
+        // practice music keeps looping through deaths
+        if (!this.practice) this.audio.stopMusic(0.05);
+        this.autoCp.onDeath();
         this.audio.sfx('death');
         this.phase = 'dead';
         this.deathAt = now;

@@ -170,7 +170,7 @@ Hitboxes:
 4. [x] All game modes and portals, with a test level per mode.
 5. [x] Orbs, pads, slopes, dual, mini, mirror.
 6. [x] Color channels, triggers, glow, beat pulsing.
-7. [ ] Practice mode with full-state checkpoints.
+7. [x] Practice mode with full-state checkpoints.
 8. [ ] Level editor.
 9. [ ] Original soundtrack and the 8 shipped levels with winning replays.
 10. [ ] Menus, icon customizer, settings, persistence, mobile polish.

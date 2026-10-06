@@ -954,6 +954,27 @@ const particleDraw: Record<string, TexSpec> = {
       ctx.fill();
     },
   },
+  checkpoint: {
+    w: 1, h: 1, pad: 0.25,
+    draw: (ctx, W, H, B) => {
+      ctx.save();
+      ctx.shadowColor = '#5cff7a';
+      ctx.shadowBlur = B * 0.25;
+      poly(ctx, [[W / 2, H * 0.06], [W * 0.82, H / 2], [W / 2, H * 0.94], [W * 0.18, H / 2]]);
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#d8ffd0');
+      g.addColorStop(0.5, '#5cff7a');
+      g.addColorStop(1, '#1f9e3c');
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = B * 0.06;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+      ctx.restore();
+    },
+  },
   white: { w: 0.25, h: 0.25, pad: 0, draw: (ctx, W, H) => { ctx.fillStyle = WHITE; ctx.fillRect(0, 0, W, H); } },
   p_line: {
     w: 4, h: 0.12, pad: 0,

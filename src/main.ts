@@ -13,11 +13,15 @@ async function boot(): Promise<void> {
   const app = new App();
   await app.init();
   app.start();
-  (window as unknown as { __app: App }).__app = app;
+  // debug handles for automated tests
+  (window as unknown as { __app: App; __audio: typeof audio }).__app = app;
+  (window as unknown as { __audio: typeof audio }).__audio = audio;
   const params = new URLSearchParams(location.search);
   // Start rendering the first song while the splash is up.
   const level = (findLevel(params.get('level') ?? 'test-cube') ?? LEVELS[0]!).level;
   const songJob = audio.load(level.meta.song);
+  // the practice and menu loops render in the background
+  void songJob.then(() => audio.load('practice')).then(() => audio.load('menu'));
   await showSplash(app.ui);
   await audio.unlock();
   audio.setVolumes(store.settings.musicVolume, store.settings.sfxVolume);
@@ -30,6 +34,7 @@ async function boot(): Promise<void> {
       new GameScreen(app, {
         level,
         replay,
+        practice: params.has('practice'),
         audio: new LevelAudio(audio, level),
         onExit: () => start(),
       }),
