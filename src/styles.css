@@ -158,3 +158,22 @@ html, body {
 .complete .stats span:nth-child(odd) { opacity: 0.85; text-align: right; }
 .complete .coins { display: flex; gap: 14px; }
 .coin-slot { width: 46px; height: 46px; }
+
+/* ------------------------------------------------------------ splash / loading */
+
+.splash {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px;
+  background: radial-gradient(circle at 50% 40%, #3b2bd6 0%, #1a1166 55%, #07041c 100%);
+  cursor: pointer; transition: opacity 240ms ease;
+}
+.splash.leaving { opacity: 0; }
+.splash-title { font-size: 132px; letter-spacing: 2px; transform: rotate(-3deg); animation: bob 2.4s ease-in-out infinite; }
+.splash-cta { font-size: 40px; animation: pulse 1.1s ease-in-out infinite; }
+.splash-hint { font-family: var(--body-font); font-weight: 800; font-size: 20px; opacity: 0.75; }
+@keyframes bob { 0%,100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(-1deg) translateY(-12px); } }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.07); opacity: 0.8; } }
+
+.loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: rgba(6,3,18,0.6); }
+.loading-spinner { width: 70px; height: 70px; border: 9px solid #fff; border-radius: 16px; box-shadow: 0 0 0 5px #120b2a; animation: spin-cube 0.9s cubic-bezier(.5,0,.5,1) infinite; background: #3dff8b; }
+.loading-text { font-size: 34px; }
+@keyframes spin-cube { 0% { transform: rotate(0) translateY(0); } 50% { transform: rotate(45deg) translateY(-20px); } 100% { transform: rotate(90deg) translateY(0); } }

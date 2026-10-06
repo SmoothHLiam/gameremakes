@@ -166,7 +166,7 @@ Hitboxes:
 
 1. [x] Project scaffold: Vite + Pixi + TS, Vercel config, a black screen deploying.
 2. [x] Fixed-timestep loop, cube physics, blocks, spikes, death and restart, physics tests.
-3. [ ] Audio clock sync, progress bar, attempt counter, one test level.
+3. [x] Audio clock sync, progress bar, attempt counter, one test level.
 4. [ ] All game modes and portals, with a test level per mode.
 5. [ ] Orbs, pads, slopes, dual, mini, mirror.
 6. [ ] Color channels, triggers, glow, beat pulsing.

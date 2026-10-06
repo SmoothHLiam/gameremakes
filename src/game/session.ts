@@ -17,25 +17,26 @@ export type SfxName = 'death' | 'jump' | 'orb' | 'pad' | 'portal' | 'coin' | 'co
 
 /** What the session needs from the audio engine. */
 export interface SessionAudio {
-  /** Start the level music so that level time `t` is heard now. */
-  startMusic(levelTime: number): void;
+  /**
+   * Start the level music at level time `t`. Returns the performance.now()
+   * time at which `t` will actually be heard (scheduling + output latency),
+   * or null if no music can play.
+   */
+  startMusic(levelTime: number): number | null;
   stopMusic(fadeSeconds?: number): void;
   sfx(name: SfxName): void;
   /** Audible level time while music plays, or null. */
   audibleLevelTime(perfNow: number): number | null;
   /** Practice track: loops independently of level time. */
   startPracticeMusic(): void;
-  /** Beat pulse 0..1 for visuals. */
-  beatPulse(levelTime: number): number;
 }
 
 export const NO_AUDIO: SessionAudio = {
-  startMusic: () => {},
+  startMusic: () => null,
   stopMusic: () => {},
   sfx: () => {},
   audibleLevelTime: () => null,
   startPracticeMusic: () => {},
-  beatPulse: () => 0,
 };
 
 export interface SessionOptions {
@@ -197,11 +198,13 @@ export class GameSession {
     const s = this.sim.state;
     this.camera.reset(s.x, s.players[0]!.y, { on: s.boundsOn, lo: s.boundsLo, hi: s.boundsHi });
     const t = from.tick / TICK_RATE;
-    this.clock.start(t, now);
     if (this.practice) {
-      if (this.attempts === 1) this.audio.startPracticeMusic();
+      this.audio.startPracticeMusic();
+      this.clock.start(t, now);
     } else {
-      this.audio.startMusic(t);
+      // The sim holds at t until the music is actually audible, so they start together.
+      const audibleAt = this.audio.startMusic(t);
+      this.clock.start(t, audibleAt ?? now);
     }
     this.phase = 'playing';
     this.opts.onAttempt?.(this.attempts);
@@ -230,8 +233,9 @@ export class GameSession {
     this.physicalHeld = physicallyHeld;
     this.phase = this.pausedFrom;
     if (this.phase === 'playing') {
-      this.clock.start(this.sim.state.tick / TICK_RATE, now);
-      if (!this.practice) this.audio.startMusic(this.sim.state.tick / TICK_RATE);
+      const t = this.sim.state.tick / TICK_RATE;
+      const audibleAt = this.practice ? null : this.audio.startMusic(t);
+      this.clock.start(t, audibleAt ?? now);
       this.queue.reset(physicallyHeld && !this.replay, this.sim.state.tick);
     } else if (this.phase === 'dead') {
       this.deathAt = now;
@@ -291,8 +295,9 @@ export class GameSession {
       }
       if (steps >= MAX_CATCHUP_TICKS && !this.sim.done) {
         // Fell far behind (tab hitch). Re-anchor rather than fast-forwarding through the level.
-        this.clock.start(this.sim.state.tick / TICK_RATE, now);
-        if (!this.practice) this.audio.startMusic(this.sim.state.tick / TICK_RATE);
+        const t = this.sim.state.tick / TICK_RATE;
+        const audibleAt = this.practice ? null : this.audio.startMusic(t);
+        this.clock.start(t, audibleAt ?? now);
       }
     } else if (this.phase === 'dead') {
       if (now - this.deathAt >= (this.opts.respawnDelay ?? 1) * 1000) this.newAttempt(now);
@@ -321,10 +326,19 @@ export class GameSession {
       dt: this.phase === 'paused' ? 0 : dt,
       time: this.visTime,
       cam: this.camera.state,
-      beat: this.practice ? 0 : this.audio.beatPulse(this.lastTime),
+      beat: this.practice || this.phase !== 'playing' ? 0 : this.beatPulse(this.lastTime),
       mirror,
       hidePlayers: this.phase === 'dead',
     });
+  }
+
+  /** 0..1 pulse that peaks on every beat of the level's song (from its beat grid). */
+  private beatPulse(levelTime: number): number {
+    const m = this.opts.level.meta;
+    const beats = ((m.offset + levelTime - m.beatOffset) * m.bpm) / 60;
+    if (beats < 0) return 0;
+    const phase = beats - Math.floor(beats);
+    return Math.exp(-phase * 6);
   }
 
   private emitAt(x: number, y: number, color: number, kind: 'ring' | 'burst' | 'dust' | 'sparks'): void {

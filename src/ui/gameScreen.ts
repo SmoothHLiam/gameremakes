@@ -229,7 +229,12 @@ export class GameScreen implements Screen {
     const panel = h(
       'div.panel.complete.pop',
       h('h1.outlined', info.practice ? 'Practice Complete!' : 'Level Complete!'),
-      h('div.stats.outlined', h('span', 'Attempts'), h('span', String(info.attempts)), h('span', 'Time'), h('span', `${mm}:${ss}`), h('span', 'Coins'), h('span', `${countBits(info.coins)} / ${coinTotal}`)),
+      h(
+        'div.stats.outlined',
+        h('span', 'Attempts'), h('span', String(info.attempts)),
+        h('span', 'Time'), h('span', `${mm}:${ss}`),
+        coinTotal ? h('span', 'Coins') : null, coinTotal ? h('span', `${countBits(info.coins)} / ${coinTotal}`) : null,
+      ),
       coinTotal ? coins : null,
       h('div.row', button(this.opts.playtest ? 'Back to editor' : 'Back to menu', () => this.exit(true, info), 'green'), this.opts.playtest ? null : button('Replay', () => {
         this.closeOverlay();

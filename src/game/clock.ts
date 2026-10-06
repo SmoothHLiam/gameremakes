@@ -44,6 +44,8 @@ export class LevelClock {
   /** Level time at a performance timestamp (ms). */
   at(perfMs: number): number {
     if (!this.running) return this.frozenAt;
+    // Before the anchor (music not audible yet) the level holds at its start time.
+    if (perfMs < this.basePerf) return this.baseTime;
     return this.baseTime + ((perfMs - this.basePerf) / 1000) * this.rate;
   }
 
