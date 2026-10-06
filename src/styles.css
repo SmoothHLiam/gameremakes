@@ -1,0 +1,57 @@
+:root {
+  --ui-font: 'Lilita One', 'Arial Rounded MT Bold', 'Trebuchet MS', sans-serif;
+  --body-font: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  --ink: #120b2a;
+  --paper: #ffffff;
+  --accent: #ffe14d;
+  --accent-2: #3df2ff;
+  --accent-3: #ff4fd8;
+  --good: #5cff7a;
+  --bad: #ff5a5a;
+  --panel: rgba(18, 11, 42, 0.92);
+  --panel-edge: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#ui {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1280px;
+  height: 720px;
+  transform-origin: 0 0;
+  font-family: var(--ui-font);
+  color: var(--paper);
+  pointer-events: none;
+}
+
+#ui > * { pointer-events: auto; }
