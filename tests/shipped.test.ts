@@ -59,3 +59,13 @@ describe('shipped content', () => {
     for (const l of levels) expect(l.meta.id).toBeTruthy();
   });
 });
+
+describe('menu background level', () => {
+  it('its built-in replay always completes', async () => {
+    const { menuLevel } = await import('../src/game/menuLevel.ts');
+    const { runReplay } = await import('../src/core/sim/replay.ts');
+    const { level, replay } = menuLevel();
+    const r = runReplay(compileWorld(parseLevel(level)), replay);
+    expect(r.outcome).toBe('complete');
+  });
+});

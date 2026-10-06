@@ -170,6 +170,14 @@ Hitboxes:
 - **Coins** are reached by a secret orb detour in a calm stretch; the detour
   must land back on the same floor before the next main input, so the rest of
   the run is unchanged. Coins only count when the level is completed.
+- **Best percent** is recorded on death (and 100% on completion), separately
+  for normal and practice. Quitting mid-run doesn't count as progress.
+- **Menu background** is a tiny generated cube level (`src/game/menuLevel.ts`)
+  played by its own replay in sync with the looping menu track; a unit test
+  checks the replay always clears it.
+- **Leaving the editor** with unsaved changes asks to save, discard or cancel.
+- **Phones held upright** see a "turn your device sideways" screen; the game is
+  16:9 landscape only so jump timing reads the same on every device.
 - **Soundtrack** is composed in code (`src/core/audio/songs.ts`) and rendered
   by the in-house synth in a Web Worker when needed (no audio files shipped).
 
@@ -197,5 +205,5 @@ Hitboxes:
 7. [x] Practice mode with full-state checkpoints.
 8. [x] Level editor.
 9. [x] Original soundtrack and the 8 shipped levels with winning replays.
-10. [ ] Menus, icon customizer, settings, persistence, mobile polish.
+10. [x] Menus, icon customizer, settings, persistence, mobile polish.
 11. [ ] Performance pass, Playwright suite green, README.

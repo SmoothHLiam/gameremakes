@@ -992,7 +992,29 @@ export class EditorScreen implements Screen {
   }
 
   private exit(): void {
-    this.opts.onExit();
+    if (!this.model.dirty) {
+      this.opts.onExit();
+      return;
+    }
+    this.closeDialog();
+    const panel = h(
+      'div.panel.ed-dialog.ed-confirm.pop',
+      h('h2.outlined', 'Unsaved changes'),
+      h('p', 'Save this level before leaving the editor?'),
+      h(
+        'div.row',
+        button('Save & exit', () => {
+          this.save();
+          if (!this.model.dirty) this.opts.onExit();
+        }, 'green'),
+        button('Discard', () => this.opts.onExit(), 'red'),
+        button('Cancel', () => this.closeDialog(), 'gray'),
+      ),
+    );
+    this.dialog = h('div.overlay', panel);
+    this.dialog.addEventListener('pointerdown', (e) => e.stopPropagation());
+    this.dialog.dataset.testid = 'editor-confirm';
+    this.app.ui.appendChild(this.dialog);
   }
 
   destroy(): void {

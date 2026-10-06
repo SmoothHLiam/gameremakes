@@ -18,6 +18,8 @@ export interface GameScreenOptions {
   onExit: (result: { completed: boolean; info?: CompleteInfo }) => void;
   onDeath?: (percent: number, practice: boolean) => void;
   onComplete?: (info: CompleteInfo) => void;
+  /** A new attempt began (fires for the first one too). */
+  onAttempt?: (attempt: number, practice: boolean) => void;
   openSettings?: (onClose: () => void) => void;
   /** Editor playtest: Escape returns instead of pausing. */
   playtest?: boolean;
@@ -60,6 +62,7 @@ export class GameScreen implements Screen {
       reducedParticles: st.reducedParticles,
       onDeath: (p, practice) => opts.onDeath?.(p, practice),
       onComplete: (info) => this.onComplete(info),
+      onAttempt: (n) => opts.onAttempt?.(n, this.session.practice),
     });
     this.root.addChild(this.session.view.root);
 
